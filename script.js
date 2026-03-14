@@ -10,7 +10,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Actually, modern browsers do smooth scrolling well. Let's create an elegant
     // scroll-based animation engine instead of overriding native scroll height which 
     // can be buggy without a library.
-
     /* --- 2. Advanced Intersection Observer for Reveal Animations --- */
     const revealOptions = {
         root: null,
@@ -248,5 +247,49 @@ document.addEventListener('DOMContentLoaded', () => {
         updateCountdown();
         // Update every second
         const timerInterval = setInterval(updateCountdown, 1000);
+    }
+
+    /* --- 12. Ultra-Modern Cursor tracking --- */
+    const cursorDot = document.getElementById('cursor-dot');
+    const cursorOutline = document.getElementById('cursor-outline');
+    let mouseX = 0, mouseY = 0;
+    let outlineX = 0, outlineY = 0;
+
+    if (cursorDot && cursorOutline && window.matchMedia("(pointer: fine)").matches) {
+        cursorDot.style.display = 'block';
+        cursorOutline.style.display = 'block';
+
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            cursorDot.style.transform = `translate(${mouseX}px, ${mouseY}px) translate(-50%, -50%)`;
+        });
+
+        // Loop for trailing effect
+        const animateCursor = () => {
+            outlineX += (mouseX - outlineX) * 0.15;
+            outlineY += (mouseY - outlineY) * 0.15;
+            cursorOutline.style.transform = `translate(${outlineX}px, ${outlineY}px) translate(-50%, -50%)`;
+            requestAnimationFrame(animateCursor);
+        };
+        requestAnimationFrame(animateCursor); // Start loop once
+
+        // Hover effects on interactive elements
+        const interactables = document.querySelectorAll('a, button, input, textarea, select, .magnetic');
+        interactables.forEach(el => {
+            el.addEventListener('mouseenter', () => cursorOutline.classList.add('hovering'));
+            el.addEventListener('mouseleave', () => cursorOutline.classList.remove('hovering'));
+        });
+    }
+
+    /* --- 13. Top Scroll Progress Indication --- */
+    const topProgressBar = document.getElementById('topProgressBar');
+    if (topProgressBar) {
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            topProgressBar.style.width = scrolled + "%";
+        });
     }
 });
